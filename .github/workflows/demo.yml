@@ -1,9 +1,11 @@
 name: Demo Workflow
 on: [push,workflow_dispatch]
 jobs:
-  Explore-GitHub-Actions:
+  Explore-GitHub-Actions-Job:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
       - name: List files in the TechTuesday repository
         run: |
           ls ${{ github.workspace }}
