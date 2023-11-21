@@ -60,10 +60,9 @@ jobs:
       
       - name: Generate dotnet-coverage report
         run: dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
-      
-      - name: Run DevSkim scanner
-        uses: microsoft/DevSkim-Action@v1
-
+      - name: DevSkim
+        uses: microsoft/DevSkim-Action@v1.0.11
+        
       - name: Upload DevSkim scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
