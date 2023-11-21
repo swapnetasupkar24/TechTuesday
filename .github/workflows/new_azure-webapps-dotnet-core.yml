@@ -42,27 +42,21 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: '5.0.x'
+          include-prerelease: true
       
-      - name: Set up dependency caching for faster builds
-        uses: actions/cache@v2
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
       - name: Build with dotnet
         run: dotnet build --configuration Release
-
+        
       - name: Install dotnet-coverage
         run: dotnet tool install --global dotnet-coverage  
       
       - name: Generate dotnet-coverage report
         run: dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
-      - name: DevSkim
-        uses: microsoft/DevSkim-Action@v1.0.11
-        
+      
+      - name: Run DevSkim scanner
+        uses: microsoft/DevSkim-Action@v1
+
       - name: Upload DevSkim scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
@@ -78,6 +72,7 @@ jobs:
         
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+      
             
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
