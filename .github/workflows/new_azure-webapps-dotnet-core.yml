@@ -25,9 +25,10 @@ env:
   DOTNET_VERSION: '5.0'                 # set this to the .NET Core version to use1.2.3, 1.2, 1.2.x, 1.2.*
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
