@@ -38,17 +38,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{ matrix.language }}
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-        
+           
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -65,12 +55,30 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
-      - name: sast-scan
-        # You may pin to the exact commit or the version.
-        # uses: AppThreat/sast-scan-action@4d0f956e6ba3c940a22679fd8fe7cb2e755f3d96
-        uses: AppThreat/sast-scan-action@1.0.2
+      - name: Install dotnet-coverage
+        run: dotnet tool install --global dotnet-coverage  
+      
+      - name: Generate dotnet-coverage report
+        run: dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
+      
+      - name: Run DevSkim scanner
+        uses: microsoft/DevSkim-Action@v1
+
+      - name: Upload DevSkim scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          type: ${{ matrix.language }}
+          sarif_file: devskim-results.sarif
+          
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+        
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
             
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
